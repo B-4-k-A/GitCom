@@ -9,16 +9,32 @@
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "gitcom",
+    "comment",
+    "comments",
+    "delete",
+    "remove"
+  ],
   "activationEvents": [
-    "onCommand:gitcom.helloWorld"
+	  "onCommand:gitcom.removeAllComments",
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+        "title": "Remove Comments configuration",
+        "properties": {
+          "gitcom.multilineComments": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+    },
     "commands": [
       {
-        "command": "gitcom.helloWorld",
-        "title": "Hello World"
-      }
+			"command": "gitcom.removeAllComments",
+			"title": "GitCom: Remove all comments"
+		}
     ]
   },
   "scripts": {
