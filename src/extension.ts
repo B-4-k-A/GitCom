@@ -39,24 +39,20 @@ export function activate(context: vscode.ExtensionContext) {
         }
         
         let workspaceName = vscode.workspace.workspaceFolders!![0].uri.fsPath;
-        console.log(workspaceName);
-        
         
         let fileName = path.basename(current_editor.document.fileName).split(".")[0].concat(".txt");
-        console.log(fileName);
         const file = fitem.createFile(workspaceName, fileName);
-        console.log("createFile function worked succesfully");
         
         
         //Display a message box to the user
         vscode.window.setStatusBarMessage(file,1000);
-        fitem.openFile();
+        //fitem.openFile();
     });
-    let open = vscode.commands.registerCommand('gitcom.openFile', () => fitem.openFile());
+    //let open = vscode.commands.registerCommand('gitcom.openFile', () => fitem.openFile());
 
     context.subscriptions.push(removeAllCommentsCommand);
     context.subscriptions.push(createFile);
-    context.subscriptions.push(open);
+    //context.subscriptions.push(open);
 }
 
 
