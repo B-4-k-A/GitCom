@@ -1,26 +1,26 @@
-import * as vscode from 'vscode';
-
-
-export class Parser {
-
-    private delimiters: string[] = [];
-    private removeRanges: boolean[] = [];
-    private multilineComments: boolean = false;
-    private config: any = vscode.workspace.getConfiguration('gitcom').multilineComments;
-
-    public edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
-    public uri: any;
-    public supportedLanguage = true;
-    public SetRegex(activeEditor: vscode.TextEditor, languageCode: string) {
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Parser = void 0;
+const vscode = require("vscode");
+class Parser {
+    constructor() {
+        this.delimiters = [];
+        this.removeRanges = [];
+        this.multilineComments = false;
+        this.config = vscode.workspace.getConfiguration('gitcom').multilineComments;
+        this.edit = new vscode.WorkspaceEdit();
+        this.supportedLanguage = true;
+    }
+    SetRegex(activeEditor, languageCode) {
         if (this.setDelimiter(languageCode)) {
             this.edit = new vscode.WorkspaceEdit();
             this.uri = activeEditor.document.uri;
-        } else {
+        }
+        else {
             vscode.window.showInformationMessage("Cannot remove comments : unknown language (" + languageCode + ")");
         }
     }
-    public FindSingleLineComments(activeEditor: vscode.TextEditor): any {
+    FindSingleLineComments(activeEditor) {
         for (var l = 0; l < activeEditor.document.lineCount; l++) {
             let line = activeEditor.document.lineAt(l);
             let matched = false;
@@ -37,49 +37,40 @@ export class Parser {
                             let range = new vscode.Range(startPos, endPos);
                             this.edit.delete(this.uri, range);
                             let n = activeEditor.document.getText(range);
-                            console.log("Removing : " + n);
-                        } else {
+                        }
+                        else {
                             let startPos = new vscode.Position(l, match.index);
                             let endPos = new vscode.Position(l + 1, 0);
                             let range = new vscode.Range(startPos, endPos);
                             this.edit.delete(this.uri, range);
+                            let n = activeEditor.document.getText(range);
                         }
-                        
                         matched = true;
                     }
                 }
             }
         }
     }
-
-    public FindMultilineComments(activeEditor: vscode.TextEditor): void {
-
+    FindMultilineComments(activeEditor) {
         if (!this.multilineComments) {
             return;
         }
-
         let text = activeEditor.document.getText();
         let uri = activeEditor.document.uri;
-        let regEx: RegExp = /(^|[ \t])(\/\*[^*])+([\s\S]*?)(\*\/)/gm;
-        let match: any;
-
+        let regEx = /(^|[ \t])(\/\*[^*])+([\s\S]*?)(\*\/)/gm;
+        let match;
         while (match = regEx.exec(text)) {
-
             let startPos = activeEditor.document.positionAt(match.index);
             let endPos = activeEditor.document.positionAt(match.index + match[0].length);
             let range = new vscode.Range(startPos, endPos);
             this.edit.delete(uri, range);
-
+            let n = activeEditor.document.getText(range);
         }
-
     }
-
-    private setDelimiter(languageCode: string): boolean {
-
+    setDelimiter(languageCode) {
         this.supportedLanguage = true;
         this.delimiters = [];
         this.removeRanges = [];
-
         switch (languageCode) {
             case "c":
             case "cpp":
@@ -105,7 +96,6 @@ export class Parser {
                 this.removeRanges.push(true);
                 this.multilineComments = this.config;
                 break;
-
             case "coffeescript":
             case "dockerfile":
             case "elixir":
@@ -123,7 +113,6 @@ export class Parser {
                 this.delimiters.push("#");
                 this.removeRanges.push(true);
                 break;
-
             case "haskell":
             case "plsql":
             case "sql":
@@ -131,7 +120,6 @@ export class Parser {
                 this.delimiters.push("--");
                 this.removeRanges.push(true);
                 break;
-
             case "latex":
                 this.delimiters.push("%");
                 this.removeRanges.push(true);
@@ -140,8 +128,8 @@ export class Parser {
                 this.supportedLanguage = false;
                 break;
         }
-
         return this.supportedLanguage;
     }
-
 }
+exports.Parser = Parser;
+//# sourceMappingURL=parser.js.map
