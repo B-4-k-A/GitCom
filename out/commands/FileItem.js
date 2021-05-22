@@ -1,24 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FileItem = void 0;
+exports.FileCreator = void 0;
+const vscode = require("vscode");
 const fs = require("fs");
+const path = require("path");
 const mkdirp = require("mkdirp");
-class FileItem {
-    createFile(current_folder, fileName) {
-        // const folders = selection.substring(0, selection.lastIndexOf('/'));
-        if (current_folder === undefined) {
+class FileCreator {
+    createFile(fileUri) {
+        let workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders === undefined) {
             console.log("folder undefined");
         }
-        mkdirp.sync(current_folder + "/.gitcom");
-        const file_exists = fs.existsSync(current_folder + "/.gitcom/" + fileName);
-        if (!file_exists) {
-            fs.writeFileSync(current_folder + "/.gitcom/" + fileName, '');
-            return fileName + "Created";
+        let gitcomPath = workspaceFolders[0].uri.fsPath + "/.gitcom";
+        mkdirp.sync(gitcomPath);
+        let filePath = gitcomPath + "/" + path.basename(fileUri.fsPath);
+        const fileExists = fs.existsSync(filePath);
+        if (!fileExists) {
+            fs.writeFileSync(filePath, '');
+            return vscode.Uri.file(filePath);
         }
         else {
-            return "File already exists";
+            console.log("File already exists");
         }
     }
 }
-exports.FileItem = FileItem;
+exports.FileCreator = FileCreator;
 //# sourceMappingURL=FileItem.js.map

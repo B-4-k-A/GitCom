@@ -1,14 +1,13 @@
 import * as vscode from 'vscode';
 import { Parser } from './commands/parser';
-import { FileItem } from './commands/FileItem';
-// import * as fs from 'fs';
-import * as path from 'path';
-import * as mkdirp from 'mkdirp';
+import { Writter } from './commands/Writter';
+import { GitComFS } from './commands/GitComFS';
 
 export function activate(context: vscode.ExtensionContext) {
     let activeEditor: vscode.TextEditor;
     let parser: Parser = new Parser();
-    let fitem: FileItem = new FileItem();
+    let writter: Writter = new Writter();
+    let gitcomFS: GitComFS = new GitComFS();
     let removeComments = function (n: number) {
 
         if (!activeEditor || !parser.supportedLanguage) {
@@ -23,36 +22,29 @@ export function activate(context: vscode.ExtensionContext) {
 
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
 
+        console.log("removeAllComment work");
+
         if (vscode.window.activeTextEditor) {
             activeEditor = vscode.window.activeTextEditor;
             parser.SetRegex(activeEditor, activeEditor.document.languageId);
             removeComments(2);
         }
-        
-
     });
 
     let createFile = vscode.commands.registerCommand('gitcom.createFile', () => {
-        const current_editor = vscode.window.activeTextEditor;
-        if (!current_editor) {
-            return;
-        }
-        
-        let workspaceName = vscode.workspace.workspaceFolders!![0].uri.fsPath;
-        
-        let fileName = path.basename(current_editor.document.fileName).split(".")[0].concat(".txt");
-        const file = fitem.createFile(workspaceName, fileName);
-        
-        
-        //Display a message box to the user
-        vscode.window.setStatusBarMessage(file,1000);
-        //fitem.openFile();
+        const document = vscode.window.activeTextEditor?.document.uri;
+        let newGitComFileUri = gitcomFS.createFile(document);
     });
-    //let open = vscode.commands.registerCommand('gitcom.openFile', () => fitem.openFile());
+
+    let writeToFile = vscode.commands.registerCommand('gitcom.saveComments', () => {
+        let documentUri = vscode.window.activeTextEditor!!.document.uri;
+        writter.writeToFile(documentUri, "[0:0:0] : \"Hello! how are you?\"");
+    });
+
 
     context.subscriptions.push(removeAllCommentsCommand);
     context.subscriptions.push(createFile);
-    //context.subscriptions.push(open);
+    context.subscriptions.push(writeToFile);
 }
 
 

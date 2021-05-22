@@ -2,14 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Writter = void 0;
 const vscode = require("vscode");
+const path = require("path");
 class Writter {
     constructor() {
-        this.file = vscode.Uri.file("saver.txt");
-        this.fedit = new vscode.WorkspaceEdit;
+        this.wsEditor = new vscode.WorkspaceEdit();
+        this.currPosition = new vscode.Position(0, 0);
     }
-    SaveComments() {
-        this.fedit.createFile(this.file);
+    writeToFile(fileUri, text) {
+        const ws = vscode.workspace;
+        let gitcom = ws.workspaceFolders[0].uri.fsPath + "/.gitcom";
+        let comFileUri = vscode.Uri.file(gitcom + "/" + path.basename(fileUri.fsPath).split(".")[0].concat(".txt"));
+        this.wsEditor.insert(comFileUri, this.currPosition, text);
+        ws.applyEdit(this.wsEditor);
     }
 }
 exports.Writter = Writter;
-//# sourceMappingURL=writter.js.map
+//# sourceMappingURL=Writter.js.map
