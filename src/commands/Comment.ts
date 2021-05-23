@@ -2,12 +2,12 @@
 export class Comment {
     private line: number;
     private start: number;
-    private end: number;
+    // private end: number;
 
     constructor(line: number, start: number, end: number) {
         this.line = line;
         this.start = start;
-        this.end = end;
+        // this.end = end;
     }
 
     public getLine(): number {
@@ -18,7 +18,10 @@ export class Comment {
         return this.start;
     }
 
-    public getEnd(): number {
-        return this.end;
+    // public getEnd(): number {
+    //     return this.end;
+    // }
+    public toString(): string {
+        return "[]";
     }
 }

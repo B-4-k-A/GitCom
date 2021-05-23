@@ -2,10 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Comment = void 0;
 class Comment {
+    // private end: number;
     constructor(line, start, end) {
         this.line = line;
         this.start = start;
-        this.end = end;
+        // this.end = end;
     }
     getLine() {
         return this.line;
@@ -13,8 +14,11 @@ class Comment {
     getStart() {
         return this.start;
     }
-    getEnd() {
-        return this.end;
+    // public getEnd(): number {
+    //     return this.end;
+    // }
+    toString() {
+        return "[]";
     }
 }
 exports.Comment = Comment;

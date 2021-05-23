@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.workspace.applyEdit(parser.edit);
     };
 
-    // Register commands here
+    // // Register commands here
 
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
         console.log("removeAllComment work");
@@ -31,11 +31,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let createFile = vscode.commands.registerCommand('gitcom.createFile', () => {
-        const document = vscode.window.activeTextEditor?.document.uri;
-        let newGitComFileUri = gitcomFS.createFile(document);
-    });
+    // let createFile = vscode.commands.registerCommand('gitcom.createFile', () => {
+    //     const document = vscode.window.activeTextEditor?.document.uri;
+    //     let newGitComFileUri = gitcomFS.createFile(document);
+    // });
 
+<<<<<<< HEAD
     let writeToFile = vscode.commands.registerCommand('gitcom.saveComments', () => {
         let documentUri = vscode.window.activeTextEditor!!.document.uri;
         writter.writeToFile(documentUri, "[0:0:0] : \"Hello! how are you?\"");
@@ -48,6 +49,19 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(createFile);
     context.subscriptions.push(writeToFile);
     context.subscriptions.push(resetComments);
+=======
+    // let writeToFile = vscode.commands.registerCommand('gitcom.saveComments', () => {
+    //     let documentUri = vscode.window.activeTextEditor!!.document.uri;
+    //     writter.writeToFile(documentUri, "[0:0:0] : \"Hello! how are you? \n klsajflksjdflaksdjf\n ldskjfslkdfjs\n\"");
+    // });
+
+
+    context.subscriptions.push(removeAllCommentsCommand);
+    // context.subscriptions.push(createFile);
+    // context.subscriptions.push(writeToFile);
+
+
+>>>>>>> 82853590b7dc4dfd5afadd11a6ccbb2622e550d6
 }
 
 
