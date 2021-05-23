@@ -35,25 +35,4 @@ export class GitComFS {
         return fs.existsSync(fileUri!.fsPath);
     }
 
-    public createFile(fileUri?: vscode.Uri) {
-        if(fileUri === undefined) {
-            return;
-        }
-        this.getGitComUri();
-        const fileUriGC = vscode.Uri.file(this.parseGitComPath(fileUri.fsPath));
-        const ws = vscode.workspace;
-        if(this.isExists(fileUriGC)){
-            return fileUriGC;
-        }
-        this.wsEditor.createFile(fileUriGC);
-        ws.applyEdit(this.wsEditor);
-        this.wsEditor = new vscode.WorkspaceEdit();
-        return fileUriGC;
-        
-    }
-
-    private parseGitComPath(filePath: string) {
-        return this.gitcomUri?.fsPath + "/" + path.basename(filePath).split(".")[0].concat(".txt");
-    }
-
 }

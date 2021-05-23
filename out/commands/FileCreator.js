@@ -1,8 +1,8 @@
+"use strict";
 // import * as vscode from 'vscode';
 // import * as fs from 'fs';
 // import * as path from 'path';
 // import * as mkdirp from 'mkdirp';
-
 // export class FileCreator {
 //     private wsEditor: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
 //     public createFile(fileUri: vscode.Uri) {
@@ -20,3 +20,4 @@
 //         }
 //     }
 // }
+//# sourceMappingURL=FileCreator.js.map

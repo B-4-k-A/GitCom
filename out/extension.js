@@ -18,7 +18,7 @@ function activate(context) {
         parser.FindMultilineComments(activeEditor);
         vscode.workspace.applyEdit(parser.edit);
     };
-    // Register commands here
+    // // Register commands here
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
         console.log("removeAllComment work");
         if (vscode.window.activeTextEditor) {
@@ -27,18 +27,17 @@ function activate(context) {
             removeComments(2);
         }
     });
-    let createFile = vscode.commands.registerCommand('gitcom.createFile', () => {
-        var _a;
-        const document = (_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document.uri;
-        let newGitComFileUri = gitcomFS.createFile(document);
-    });
-    let writeToFile = vscode.commands.registerCommand('gitcom.saveComments', () => {
-        let documentUri = vscode.window.activeTextEditor.document.uri;
-        writter.writeToFile(documentUri, "[0:0:0] : \"Hello! how are you?\"");
-    });
+    // let createFile = vscode.commands.registerCommand('gitcom.createFile', () => {
+    //     const document = vscode.window.activeTextEditor?.document.uri;
+    //     let newGitComFileUri = gitcomFS.createFile(document);
+    // });
+    // let writeToFile = vscode.commands.registerCommand('gitcom.saveComments', () => {
+    //     let documentUri = vscode.window.activeTextEditor!!.document.uri;
+    //     writter.writeToFile(documentUri, "[0:0:0] : \"Hello! how are you? \n klsajflksjdflaksdjf\n ldskjfslkdfjs\n\"");
+    // });
     context.subscriptions.push(removeAllCommentsCommand);
-    context.subscriptions.push(createFile);
-    context.subscriptions.push(writeToFile);
+    // context.subscriptions.push(createFile);
+    // context.subscriptions.push(writeToFile);
 }
 exports.activate = activate;
 function deactivate() { }

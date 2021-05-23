@@ -13,6 +13,7 @@ class Writter {
         let gitcom = ws.workspaceFolders[0].uri.fsPath + "/.gitcom";
         let comFileUri = vscode.Uri.file(gitcom + "/" + path.basename(fileUri.fsPath).split(".")[0].concat(".txt"));
         this.wsEditor.insert(comFileUri, this.currPosition, text);
+        // change currPosition
         ws.applyEdit(this.wsEditor);
     }
 }
