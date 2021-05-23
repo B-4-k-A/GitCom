@@ -37,9 +37,6 @@ class Parser {
                             let range = new vscode.Range(startPos, endPos);
                             this.edit.delete(this.uri, range);
                             let n = activeEditor.document.getText(range);
-                            console.log("single comment if part");
-                            console.log(range);
-                            console.log(n);
                         }
                         else {
                             let startPos = new vscode.Position(l, match.index);
@@ -47,9 +44,6 @@ class Parser {
                             let range = new vscode.Range(startPos, endPos);
                             this.edit.delete(this.uri, range);
                             let n = activeEditor.document.getText(range);
-                            console.log("single comment else part");
-                            console.log(range);
-                            console.log(n);
                         }
                         matched = true;
                     }
