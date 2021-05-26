@@ -1,85 +1,88 @@
 import * as vscode from 'vscode';
 
-
 export class Parser {
+    private delimiter?: string;
+    private multilineComment: boolean = false;
+    public supportedLanguage: boolean = true;
+    
 
-    private delimiters: string[] = [];
-    private removeRanges: boolean[] = [];
-    private multilineComments: boolean = false;
-    private config: any = vscode.workspace.getConfiguration('gitcom').multilineComments;
-
-    public edit: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
-    public uri: any;
-    public supportedLanguage = true;
-    public SetRegex(activeEditor: vscode.TextEditor, languageCode: string) {
-
-        if (this.setDelimiter(languageCode)) {
-            this.edit = new vscode.WorkspaceEdit();
-            this.uri = activeEditor.document.uri;
-        } else {
-            vscode.window.showInformationMessage("Cannot remove comments : unknown language (" + languageCode + ")");
+    public async removeComments(fileUri: vscode.Uri) {
+        let languageId = await vscode.workspace.openTextDocument(fileUri).then(async (doc: vscode.TextDocument) => {
+            return doc.languageId;
+        });
+        let supported = this.setDelimiter(languageId);
+        if(!supported) {
+            vscode.window.showWarningMessage("Unsupported file");
+            return [];
         }
-    }
-    public FindSingleLineComments(activeEditor: vscode.TextEditor): any {
-        for (var l = 0; l < activeEditor.document.lineCount; l++) {
-            let line = activeEditor.document.lineAt(l);
-            let matched = false;
-            for (var i = 0; i < this.delimiters.length; i++) {
-                if (!matched) {
-                    let expression = this.delimiters[i].replace(/\//ig, "\\/");
-                    let removeRange = this.removeRanges[i];
-                    let regEx = new RegExp(expression, "ig");
-                    let match = regEx.exec(line.text);
-                    if (match) {
-                        if (removeRange) {
-                            let startPos = new vscode.Position(l, match.index);
-                            let endPos = new vscode.Position(l, line.text.length);
-                            let range = new vscode.Range(startPos, endPos);
-                            this.edit.delete(this.uri, range);
-                            let n = activeEditor.document.getText(range);
-                            console.log("Removing : " + n);
-                        } else {
-                            let startPos = new vscode.Position(l, match.index);
-                            let endPos = new vscode.Position(l + 1, 0);
-                            let range = new vscode.Range(startPos, endPos);
-                            this.edit.delete(this.uri, range);
-                        }
-                        
-                        matched = true;
-                    }
-                }
+        let editor = new vscode.WorkspaceEdit();
+        let singleLineCommData = await this.removeSingleLineCom(fileUri, editor);
+        let multiLineCommData = await this.removeMultiLineCom(fileUri, editor);
+        vscode.workspace.applyEdit(editor);
+        let comments = singleLineCommData[0];
+
+        return [singleLineCommData, multiLineCommData];
+}
+
+    private async removeSingleLineCom(fileUri: vscode.Uri, editor: vscode.WorkspaceEdit) {
+        let deletedComm: string[] = [];
+        let deletedCommStartPos: vscode.Position[] = [];
+        let deletedCommEndPos: vscode.Position[] = [];
+        let doc = await this.uriToTextDocument(fileUri);
+        let regex = RegExp(this.delimiter + "~.+");
+        let match: any;
+        for(var l = 0; l < doc.lineCount; l++) {
+            let line = doc.lineAt(l);
+            match = regex.exec(line.text);
+            if(match === null) {
+                continue;
             }
+            let startPos = new vscode.Position(l, match.index);
+            let endPos = new vscode.Position(l, line.text.length);
+            let range = new vscode.Range(startPos, endPos);
+            let comment = doc.getText(range);
+            deletedCommStartPos.push(startPos);
+            deletedCommEndPos.push(endPos);
+            deletedComm.push(comment);
+            editor.delete(doc.uri, range);
         }
+        return [deletedComm, deletedCommStartPos, deletedCommEndPos];
     }
 
-    public FindMultilineComments(activeEditor: vscode.TextEditor): void {
-
-        if (!this.multilineComments) {
+    private async removeMultiLineCom(fileUri: vscode.Uri, editor: vscode.WorkspaceEdit) {
+        if (!this.multilineComment) {
             return;
         }
+        let deletedComm: string[] = [];
+        let deletedCommStartPos: vscode.Position[] = [];
+        let deletedCommEndPos: vscode.Position[] = [];
 
-        let text = activeEditor.document.getText();
-        let uri = activeEditor.document.uri;
-        let regEx: RegExp = /(^|[ \t])(\/\*[^*])+([\s\S]*?)(\*\/)/gm;
+        let doc = await this.uriToTextDocument(fileUri);
+        let text = doc.getText();
+        let regEx: RegExp = /(^|[ \t])(\/\*~[^*])+([\s\S]*?)(\*\/)/gm;
         let match: any;
 
         while (match = regEx.exec(text)) {
-
-            let startPos = activeEditor.document.positionAt(match.index);
-            let endPos = activeEditor.document.positionAt(match.index + match[0].length);
+            let startPos = doc.positionAt(match.index);
+            let endPos = doc.positionAt(match.index + match[0].length);
             let range = new vscode.Range(startPos, endPos);
-            this.edit.delete(uri, range);
-
+            let comment = doc.getText(range);
+            editor.delete(fileUri, range);
+            deletedCommStartPos.push(startPos);
+            deletedCommEndPos.push(endPos);
+            deletedComm.push(comment);
         }
+        return [deletedComm, deletedCommStartPos, deletedCommEndPos];
 
     }
 
-    private setDelimiter(languageCode: string): boolean {
+    private async uriToTextDocument(fileUri: vscode.Uri) {
+        return vscode.workspace.openTextDocument(fileUri).then((doc: vscode.TextDocument) => {
+            return doc;
+        });
+    }
 
-        this.supportedLanguage = true;
-        this.delimiters = [];
-        this.removeRanges = [];
-
+    public setDelimiter(languageCode: string) {
         switch (languageCode) {
             case "c":
             case "cpp":
@@ -101,9 +104,8 @@ export class Parser {
             case "swift":
             case "typescript":
             case "typescriptreact":
-                this.delimiters.push("//");
-                this.removeRanges.push(true);
-                this.multilineComments = this.config;
+                this.delimiter = "//";
+                this.multilineComment = true;
                 break;
 
             case "coffeescript":
@@ -120,21 +122,18 @@ export class Parser {
             case "ruby":
             case "shellscript":
             case "yaml":
-                this.delimiters.push("#");
-                this.removeRanges.push(true);
+                this.delimiter = "#";
                 break;
 
             case "haskell":
             case "plsql":
             case "sql":
             case "lua":
-                this.delimiters.push("--");
-                this.removeRanges.push(true);
+                this.delimiter = "--";
                 break;
 
             case "latex":
-                this.delimiters.push("%");
-                this.removeRanges.push(true);
+                this.delimiter = "%";
                 break;
             default:
                 this.supportedLanguage = false;
@@ -143,5 +142,4 @@ export class Parser {
 
         return this.supportedLanguage;
     }
-
 }
