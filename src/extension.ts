@@ -1,30 +1,18 @@
 import * as vscode from 'vscode';
-import { Parser } from './parser';
+import { Parser2 } from './parser2';
 
 export function activate(context: vscode.ExtensionContext) {
 
-    let activeEditor: vscode.TextEditor;
-    let parser: Parser = new Parser();
+    // let activeEditor: vscode.TextEditor;
+    let parser: Parser2 = new Parser2();
 
-    let removeComments = function (n: number) {
-
-        if (!activeEditor || !parser.supportedLanguage) {
-            return;
-        }
-        parser.FindSingleLineComments(activeEditor);
-        parser.FindMultilineComments(activeEditor);
-        vscode.workspace.applyEdit(parser.edit);
-    };
 
     // Register commands here
 
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
-
-        if (vscode.window.activeTextEditor) {
-            activeEditor = vscode.window.activeTextEditor;
-            parser.SetRegex(activeEditor, activeEditor.document.languageId);
-            removeComments(2);
-        }
+        
+        parser.removeComments(vscode.window.activeTextEditor!.document.uri);
+        
 
     });
 

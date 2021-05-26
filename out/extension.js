@@ -2,25 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
-const parser_1 = require("./parser");
+const parser2_1 = require("./parser2");
 function activate(context) {
-    let activeEditor;
-    let parser = new parser_1.Parser();
-    let removeComments = function (n) {
-        if (!activeEditor || !parser.supportedLanguage) {
-            return;
-        }
-        parser.FindSingleLineComments(activeEditor);
-        parser.FindMultilineComments(activeEditor);
-        vscode.workspace.applyEdit(parser.edit);
-    };
+    // let activeEditor: vscode.TextEditor;
+    let parser = new parser2_1.Parser2();
     // Register commands here
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
-        if (vscode.window.activeTextEditor) {
-            activeEditor = vscode.window.activeTextEditor;
-            parser.SetRegex(activeEditor, activeEditor.document.languageId);
-            removeComments(2);
-        }
+        parser.removeComments(vscode.window.activeTextEditor.document.uri);
     });
     context.subscriptions.push(removeAllCommentsCommand);
 }
