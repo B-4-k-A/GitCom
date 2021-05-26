@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Parser = void 0;
+exports.Parser2 = void 0;
 const vscode = require("vscode");
-class Parser {
+class Parser2 {
     constructor() {
         this.multilineComment = false;
         this.supportedLanguage = true;
@@ -24,13 +24,14 @@ class Parser {
             let supported = this.setDelimiter(languageId);
             if (!supported) {
                 vscode.window.showWarningMessage("Unsupported file");
-                return [];
+                return;
             }
             let editor = new vscode.WorkspaceEdit();
             let singleLineCommData = yield this.removeSingleLineCom(fileUri, editor);
             let multiLineCommData = yield this.removeMultiLineCom(fileUri, editor);
             vscode.workspace.applyEdit(editor);
-            return [singleLineCommData, multiLineCommData];
+            console.log(singleLineCommData[0]);
+            console.log(multiLineCommData[0]);
         });
     }
     removeSingleLineCom(fileUri, editor) {
@@ -148,5 +149,5 @@ class Parser {
         return this.supportedLanguage;
     }
 }
-exports.Parser = Parser;
-//# sourceMappingURL=Parser.js.map
+exports.Parser2 = Parser2;
+//# sourceMappingURL=Parser2.js.map
