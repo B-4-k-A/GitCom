@@ -11,13 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParserController = void 0;
 const vscode = require("vscode");
+const GitComFS_1 = require("./GitComFS");
 const parser_1 = require("./parser");
 const rdir = require("recursive-readdir");
-const path = require("path");
 const fs = require("fs");
 class ParserController {
     constructor() {
         this.parser = new parser_1.Parser();
+        this.gitComFS = new GitComFS_1.GitComFS();
     }
     removeComments(fileUri) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -31,33 +32,38 @@ class ParserController {
             if (comments.length === 0) {
                 return [];
             }
-            let anscom = [];
-            for (const com of comments) {
-                anscom.push([com.getComment(), com.getStart().line, com.getStart().character, com.getEnd().character]);
-            }
-            return anscom;
+            return comments;
         });
     }
     hideComments() {
         return __awaiter(this, void 0, void 0, function* () {
-            const baseDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            const workspaceFolder = vscode.workspace.workspaceFolders;
+            if (workspaceFolder === undefined) {
+                vscode.window.showWarningMessage("Open project folder please");
+            }
+            const baseDir = workspaceFolder[0].uri.fsPath;
             let files = yield rdir(baseDir, ["*.json"]);
             const ws = vscode.workspace;
             const data = {};
             for (const file of files) {
-                let s = yield this.getCommentsInJson(vscode.Uri.file(file));
-                let i = 0;
+                let comments = yield this.getCommentsInJson(vscode.Uri.file(file));
+                if (comments.length === 0) {
+                    continue;
+                }
                 data[file] = [];
                 let a = data[file];
-                while (i < s.length) {
-                    a.push({ co: s[i][0].toString(), line: s[i][1].toString(),
-                        position: s[i][2].toString(), endposition: s[i][3].toString() });
-                    i += 1;
+                for (const comm of comments) {
+                    a.push({ com: comm.getComment(),
+                        startLine: comm.getStart().line.toString(),
+                        startCharacter: comm.getStart().character.toString(),
+                        endLine: comm.getEnd().line.toString(),
+                        endCharacter: comm.getEnd().character.toString() });
                 }
                 data[file] = a;
             }
-            const filename = baseDir + path.normalize("/.gitcom/data.json");
-            fs.writeFileSync(filename, JSON.stringify(data, null, 2));
+            const gitCom = this.gitComFS.getGitComUri();
+            const fileName = gitCom.fsPath + "/data.json";
+            fs.writeFileSync(fileName, JSON.stringify(data, null, 2));
         });
     }
 }
