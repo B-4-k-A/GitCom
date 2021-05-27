@@ -2,23 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Comment = void 0;
 class Comment {
-    // private end: number;
-    constructor(line, start, end) {
-        this.line = line;
+    constructor(comment, start, end) {
+        this.comment = comment;
         this.start = start;
-        // this.end = end;
+        this.end = end;
     }
-    getLine() {
-        return this.line;
+    getComment() {
+        return this.comment;
     }
     getStart() {
         return this.start;
     }
-    // public getEnd(): number {
-    //     return this.end;
-    // }
-    toString() {
-        return "[]";
+    getEnd() {
+        return this.end;
     }
 }
 exports.Comment = Comment;

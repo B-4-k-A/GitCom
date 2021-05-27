@@ -18,24 +18,25 @@ class Unparse {
     constructor() {
         this.resetComments = (() => __awaiter(this, void 0, void 0, function* () {
             const baseDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-            let files = yield rdir(baseDir);
+            let files = yield rdir(baseDir, ["*.json"]);
             const ws = vscode.workspace;
             for (const file of files) {
-                if (!file.endsWith('.json')) {
-                    let a = this.Unpar(file);
-                    let comFileUri = vscode.Uri.file(file);
-                    let wsEditor = new vscode.WorkspaceEdit();
-                    for (let i = 0; i < a.length; i++) {
-                        let currPosition = new vscode.Position(a[i]['line'], a[i]['position']);
-                        wsEditor.insert(comFileUri, currPosition, a[i]['comment'] + '\n');
-                        ws.applyEdit(wsEditor);
-                        wsEditor = new vscode.WorkspaceEdit();
+                let a = this.Unpar(file);
+                let comFileUri = vscode.Uri.file(file);
+                let wsEditor = new vscode.WorkspaceEdit();
+                for (let i = 0; i < a.length; i++) {
+                    let linea = parseInt(a[i]['line']);
+                    if (i !== 0) {
+                        linea -= a[i - 1]['co'].toString().split('\n').length - 1;
                     }
+                    let currPosition = new vscode.Position(linea, parseInt(a[i]['position'].position));
+                    wsEditor.insert(comFileUri, currPosition, a[i]['co']);
                 }
+                ws.applyEdit(wsEditor);
             }
-            //ws.applyEdit(wsEditor);
         }));
     }
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     Unpar(filepath) {
         const baseDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
         const filename = baseDir + path.normalize("/.gitcom/data.json");
@@ -43,8 +44,8 @@ class Unparse {
         var i = 0;
         let comres = [];
         //исключения нужны
-        while (i < json1[filepath]['comments'].length) {
-            comres.push(json1[filepath]['comments'][i]);
+        while (i < json1[filepath].length) {
+            comres.push(json1[filepath][i]);
             i++;
         }
         return comres;

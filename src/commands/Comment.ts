@@ -1,27 +1,25 @@
+import * as vscode from 'vscode';
 
 export class Comment {
-    private line: number;
-    private start: number;
-    // private end: number;
+    private comment!: string;
+    private start!: vscode.Position;
+    private end!: vscode.Position;
 
-    constructor(line: number, start: number, end: number) {
-        this.line = line;
+    constructor(comment: string, start: vscode.Position, end: vscode.Position) {
+        this.comment = comment;
         this.start = start;
-        // this.end = end;
+        this.end = end;
     }
 
-    public getLine(): number {
-        return this.line;
+    public getComment(): string {
+        return this.comment;
     }
 
-    public getStart(): number {
+    public getStart(): vscode.Position {
         return this.start;
     }
 
-    // public getEnd(): number {
-    //     return this.end;
-    // }
-    public toString(): string {
-        return "[]";
+    public getEnd(): vscode.Position {
+        return this.end;
     }
 }
