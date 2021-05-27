@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { Unparse } from './commands/unparser';
 import { ParserController } from './commands/ParserController';
+import { UnparseController } from './commands/UnparseController';
 
 export function activate(context: vscode.ExtensionContext) {
-    let unparser: Unparse = new Unparse();
+    let up: UnparseController = new UnparseController();
     let pc: ParserController = new ParserController(); 
 
     let removeAllCommentsCommand = vscode.commands.registerCommand('gitcom.removeAllComments', () => {
@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let resetComments = vscode.commands.registerCommand('gitcom.resetComments', () => {
-        unparser.resetComments();
+        up.insertCommments();
     });
 
     context.subscriptions.push(removeAllCommentsCommand);

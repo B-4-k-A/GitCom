@@ -4,10 +4,10 @@ import * as path from 'path';
 
 export class GitComFS {
 
-    private gitcomUri?: vscode.Uri;
-    private wsEditor: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
+    private static gitcomUri?: vscode.Uri;
+    private static wsEditor: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
 
-    private createDirectory(): vscode.Uri{
+    private static createDirectory(): vscode.Uri{
         if(this.isExists(this.gitcomUri)) {
             return this.gitcomUri!;
         }
@@ -24,11 +24,11 @@ export class GitComFS {
         return this.gitcomUri;
     }
 
-    public getGitComUri(): vscode.Uri{
+    public static getGitComUri(): vscode.Uri{
         return this.createDirectory();
     }
 
-    public isExists(fileUri?: vscode.Uri): boolean {
+    public static isExists(fileUri?: vscode.Uri): boolean {
         if(fileUri === undefined) {
             return false;
         }

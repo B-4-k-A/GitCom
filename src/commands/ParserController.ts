@@ -6,7 +6,6 @@ import * as fs from 'fs';
 
 export class ParserController {
     private parser = new Parser();
-    private gitComFS = new GitComFS();
     
     public async removeComments(fileUri: vscode.Uri) {
         let comments = await this.parser.removeComments(fileUri);
@@ -53,7 +52,7 @@ export class ParserController {
             data[file] = a;
         }
 
-        const gitCom = this.gitComFS.getGitComUri();
+        const gitCom = GitComFS.getGitComUri();
         const fileName = gitCom.fsPath + "/data.json";
         fs.writeFileSync(fileName, JSON.stringify(data, null, 2));
     }

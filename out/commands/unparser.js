@@ -11,41 +11,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unparse = void 0;
 const fs = require("fs");
-const path = require("path");
 const vscode = require("vscode");
-const rdir = require("recursive-readdir");
+const GitComFS_1 = require("./GitComFS");
 class Unparse {
     constructor() {
-        this.resetComments = (() => __awaiter(this, void 0, void 0, function* () {
-            const baseDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-            let files = yield rdir(baseDir, ["*.json"]);
-            const ws = vscode.workspace;
-            for (const file of files) {
-                let a = this.Unpar(file);
-                let comFileUri = vscode.Uri.file(file);
-                let wsEditor = new vscode.WorkspaceEdit();
-                for (let i = 0; i < a.length; i++) {
-                    let linea = parseInt(a[i]['line']);
-                    if (i !== 0) {
-                        linea -= a[i - 1]['co'].toString().split('\n').length - 1;
-                    }
-                    let currPosition = new vscode.Position(linea, parseInt(a[i]['position'].position));
-                    wsEditor.insert(comFileUri, currPosition, a[i]['co']);
+        this.resetComments = ((fileUri, wsEditor) => __awaiter(this, void 0, void 0, function* () {
+            let a = this.Unpar(fileUri);
+            for (let i = 0; i < a.length; i++) {
+                let linea = parseInt(a[i]['startLine']);
+                if (i !== 0) {
+                    linea -= a[i - 1]['com'].toString().split('\n').length - 1;
                 }
-                ws.applyEdit(wsEditor);
+                let currPosition = new vscode.Position(linea, parseInt(a[i]['startCharacter'].startCharacter));
+                wsEditor.insert(fileUri, currPosition, a[i]['com']);
             }
         }));
     }
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    Unpar(filepath) {
-        const baseDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-        const filename = baseDir + path.normalize("/.gitcom/data.json");
-        var json1 = JSON.parse(fs.readFileSync(filename, 'utf8').toString());
+    Unpar(fileUri) {
+        const gitcom = GitComFS_1.GitComFS.getGitComUri();
+        const fileName = gitcom.fsPath + "/data.json";
+        var data = JSON.parse(fs.readFileSync(fileName, 'utf8').toString());
         var i = 0;
         let comres = [];
         //исключения нужны
-        while (i < json1[filepath].length) {
-            comres.push(json1[filepath][i]);
+        while (i < data[fileUri.path].length) {
+            comres.push(data[fileUri.path][i]);
             i++;
         }
         return comres;

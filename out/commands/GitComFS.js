@@ -4,10 +4,7 @@ exports.GitComFS = void 0;
 const vscode = require("vscode");
 const fs = require("fs");
 class GitComFS {
-    constructor() {
-        this.wsEditor = new vscode.WorkspaceEdit();
-    }
-    createDirectory() {
+    static createDirectory() {
         if (this.isExists(this.gitcomUri)) {
             return this.gitcomUri;
         }
@@ -22,10 +19,10 @@ class GitComFS {
         this.gitcomUri = directoryUri;
         return this.gitcomUri;
     }
-    getGitComUri() {
+    static getGitComUri() {
         return this.createDirectory();
     }
-    isExists(fileUri) {
+    static isExists(fileUri) {
         if (fileUri === undefined) {
             return false;
         }
@@ -33,4 +30,5 @@ class GitComFS {
     }
 }
 exports.GitComFS = GitComFS;
+GitComFS.wsEditor = new vscode.WorkspaceEdit();
 //# sourceMappingURL=GitComFS.js.map

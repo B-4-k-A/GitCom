@@ -1,39 +1,35 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
-import * as rdir from 'recursive-readdir';
+import { GitComFS } from './GitComFS';
+
 export class Unparse{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    public Unpar(filepath: string){
-        const baseDir = vscode.workspace.workspaceFolders!![0].uri.fsPath;
-        const filename = baseDir + path.normalize("/.gitcom/data.json");
-        var json1 = JSON.parse(fs.readFileSync(filename, 'utf8').toString());
+
+    private Unpar(fileUri: vscode.Uri){
+        const gitcom = GitComFS.getGitComUri();
+        const fileName = gitcom.fsPath + "/data.json";
+        var data = JSON.parse(fs.readFileSync(fileName, 'utf8').toString());
         var i = 0;
         let comres = [];
         //исключения нужны
-        while (i < json1[filepath].length){
-             comres.push(json1[filepath][i]);
-             i++;            
+        while (i < data[fileUri.path].length){
+            comres.push(data[fileUri.path][i]);
+            i++;            
         }
         return comres;
     }
-    public resetComments = (async () => {
-        const baseDir = vscode.workspace.workspaceFolders!![0].uri.fsPath;
-        let files = await rdir(baseDir, ["*.json"]);
-        const ws = vscode.workspace;
-        for (const file of files) {
-            let a = this.Unpar(file);
-            let comFileUri = vscode.Uri.file(file);
-            let wsEditor: vscode.WorkspaceEdit = new vscode.WorkspaceEdit();
+
+    public resetComments = (async (fileUri: vscode.Uri, wsEditor: vscode.WorkspaceEdit) => {
+        
+            let a = this.Unpar(fileUri);
             for (let i = 0; i < a.length; i++){
-                let linea = parseInt(a[i]['line']);
+                let linea = parseInt(a[i]['startLine']);
                 if (i !== 0){
-                linea -= a[i - 1]['co'].toString().split('\n').length - 1;
+                linea -= a[i - 1]['com'].toString().split('\n').length - 1;
                 }
-                let currPosition: vscode.Position = new vscode.Position(linea, parseInt(a[i]['position'].position));
-                wsEditor.insert(comFileUri, currPosition, a[i]['co']);    
-            }
-            ws.applyEdit(wsEditor);
+                let currPosition: vscode.Position = new vscode.Position(linea, 
+                    parseInt(a[i]['startCharacter'].startCharacter));
+                wsEditor.insert(fileUri, currPosition, a[i]['com']);
+            } 
         }
-    });
+    );
 }

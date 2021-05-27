@@ -18,7 +18,6 @@ const fs = require("fs");
 class ParserController {
     constructor() {
         this.parser = new parser_1.Parser();
-        this.gitComFS = new GitComFS_1.GitComFS();
     }
     removeComments(fileUri) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -61,7 +60,7 @@ class ParserController {
                 }
                 data[file] = a;
             }
-            const gitCom = this.gitComFS.getGitComUri();
+            const gitCom = GitComFS_1.GitComFS.getGitComUri();
             const fileName = gitCom.fsPath + "/data.json";
             fs.writeFileSync(fileName, JSON.stringify(data, null, 2));
         });
